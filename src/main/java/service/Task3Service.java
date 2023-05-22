@@ -1,48 +1,50 @@
 package service;
 
+import model.Node;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class Task3Service {
 
     final static private String REGEX = " ";
 
-    private static Integer numberSeparatedGraphs = 1;
 
+    static public void giveAnswers() {
+        Scanner scanner = new Scanner(System.in);
+        List<Node> nodes = new ArrayList<>();
+        int counter = 0;
+        System.out.println("Provide amount of nodes");
+        int n = Integer.parseInt(scanner.nextLine());
+        System.out.println(" Provide coordinates in separate by space");
+        IntStream.range(0, n).forEach(number -> {
+            String input = scanner.nextLine();
+            String[] providedNumbers = input.split(REGEX);
+            nodes.add(new Node(Integer.valueOf(providedNumbers[0]), Integer.valueOf(providedNumbers[1]), false));
+        });
+        scanner.close();
 
-    static public void giveAnswers(final String input) {
+        for (int i = 0; i < nodes.size(); i++) {
+            Node currentNode = nodes.get(i);
+            if (currentNode.isVisited()) {
+                continue;
+            }
+            currentNode.setVisited(true);
 
-        List<Integer> columnValues = prepareAndSplitInput(input);
-        countSeparatedGraphs(columnValues);
-        System.out.println(numberSeparatedGraphs);
-    }
+            for (int j = 0; j < nodes.size(); j++) {
+                if ((Objects.equals(currentNode.getDestination(), nodes.get(j).getSource()) || Objects.equals(currentNode.getSource(), nodes.get(j).getDestination())) && !nodes.get(j).isVisited()) {
+                    currentNode = nodes.get(j);
+                    currentNode.setVisited(true);
+                    j = 0;
 
-    static private List<Integer> prepareAndSplitInput(final String input) {
-        Scanner scanner = new Scanner(input);
-        List<Integer> columnValues = new ArrayList<>();
-
-        scanner.nextInt();
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
-            if (!line.isEmpty()) {
-                String[] values = line.split(REGEX);
-                int firstValue = Integer.parseInt(values[0]);
-                columnValues.add(firstValue);
+                } else if (j == nodes.size() - 1) {
+                    counter++;
+                }
             }
         }
-        return columnValues;
+        System.out.println(counter);
     }
-
-    static private void countSeparatedGraphs(final List<Integer> columnValues) {
-        for (int i = 1; i < columnValues.size(); i++) {
-            int currentNumber = columnValues.get(i - 1);
-            int nextNumber = columnValues.get(i);
-
-            if (currentNumber + 1 != nextNumber) {
-                numberSeparatedGraphs++;
-            }
-        }
-    }
-
 }
